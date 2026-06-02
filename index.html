@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Football Future | Ultimate Hub for Fans</title>
+    <!-- Font Awesome 6 (includes football icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Dark Theme Variables */
+        :root {
+            --primary: #00f7ff;
+            --primary-glow: rgba(0, 247, 255, 0.5);
+            --secondary: #ff3a6f;
+            --dark-bg: #0b0e17;
+            --card-bg: rgba(18, 22, 35, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-light: #f0f3fa;
+            --text-muted: #a1a8c3;
+            --transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            --shadow-neon: 0 0 15px rgba(0, 247, 255, 0.3);
+            --navbar-bg: rgba(11, 14, 23, 0.7);
+            --navbar-scrolled: rgba(11, 14, 23, 0.95);
+            --ticker-bg: #0a0c18;
+            --footer-bg: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Light Theme */
+        body.light-theme {
+            --primary: #0066ff;
+            --primary-glow: rgba(0, 102, 255, 0.3);
+            --secondary: #e63946;
+            --dark-bg: #f8faff;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --glass-border: rgba(0, 0, 0, 0.08);
+            --text-light: #0a0e1c;
+            --text-muted: #4a4f6e;
+            --shadow-neon: 0 8px 20px rgba(0, 0, 0, 0.05);
+            --navbar-bg: rgba(248, 250, 255, 0.7);
+            --navbar-scrolled: rgba(248, 250, 255, 0.95);
+            --ticker-bg: #e8ecf5;
+            --footer-bg: rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+            overflow-x: hidden;
+            transition: background 0.3s ease, color 0.2s ease;
+            position: relative;
+        }
+
+        /* Dancing Football Icons Background Container */
+        .football-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .dancing-ball {
+            position: absolute;
+            font-size: 0;
+            opacity: 0.5;
+            pointer-events: none;
+            will-change: transform;
+            animation: floatAround 18s infinite ease-in-out;
+        }
+        
+        .dancing-ball i {
+            font-size: inherit;
+            filter: drop-shadow(0 0 3px rgba(0,247,255,0.3));
+            transition: all 0.2s;
+        }
+        
+        body.light-theme .dancing-ball i {
+            filter: drop-shadow(0 0 2px rgba(0,102,255,0.2));
+        }
+        
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            25% { transform: translate(30px, -20px) rotate(12deg) scale(1.05); }
+            50% { transform: translate(-15px, 35px) rotate(-8deg) scale(0.95); }
+            75% { transform: translate(25px, 15px) rotate(5deg) scale(1.02); }
+            100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+        }
+        
+        .dancing-ball:nth-child(odd) { animation-duration: 14s; }
+        .dancing-ball:nth-child(3n) { animation-duration: 22s; }
+        .dancing-ball:nth-child(5n+2) { animation-duration: 19s; }
+        .dancing-ball:nth-child(7n) { animation-duration: 25s; }
+        
+        .navbar, .hero, .ticker-bar, section, .footer, .back-to-top, .lightbox, .preloader {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e1f2c; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        body.light-theme ::-webkit-scrollbar-track { background: #ddd; }
+
+        /* Preloader */
+        .preloader {
+            position: fixed;
+            inset: 0;
+            background: #05070f;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s, visibility 0.6s;
+        }
+        body.light-theme .preloader { background: #f0f2fa; }
+        .preloader.completed { opacity: 0; visibility: hidden; }
+        .loader-circle {
+            width: 70px;
+            height: 70px;
+            border: 5px solid rgba(0,247,255,0.2);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s infinite linear;
+            box-shadow: 0 0 20px var(--primary);
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 1.2rem 6%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--glass-border);
+            transition: 0.3s;
+        }
+        .navbar.scrolled { padding: 0.8rem 6%; background: var(--navbar-scrolled); }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+        body.light-theme .logo { background: linear-gradient(135deg, #0a0e1c, var(--primary)); -webkit-background-clip: text; background-clip: text; }
+        
+        .nav-container-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+        .nav-link { color: var(--text-light); text-decoration: none; font-weight: 600; transition: 0.2s; position: relative; }
+        .nav-link:hover { color: var(--primary); }
+        .nav-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0%; height: 2px; background: var(--primary); transition: 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+        
+        /* Theme Toggle Styling */
+        .theme-toggle-wrapper {
+            display: flex;
+            align-items: center;
+            list-style: none;
+        }
+        .toggle-theme {
+            font-size: 1.3rem;
+            cursor: pointer;
+            color: var(--text-light);
+            transition: var(--transition);
+            padding: 5px;
+        }
+        .toggle-theme:hover {
+            color: var(--primary);
+            transform: scale(1.15);
+        }
+
+        .menu-btn {
+            display: none;
+            font-size: 1.4rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .menu-btn:hover { color: var(--primary); }
+
+        /* Hero */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            background: linear-gradient(125deg, #03050b 0%, #0d1425 100%), url('https://images.unsplash.com/photo-1522778119026-d647f0597bf5?q=80&w=2070') center/cover no-repeat;
+            background-blend-mode: overlay;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        body.light-theme .hero { background: linear-gradient(125deg, #eef2ff 0%, #ffffff 100%), url('https://images.unsplash.com/photo-1522778119026-d647f0597bf5?q=80&w=2070') center/cover no-repeat; background-blend-mode: overlay; }
+        .hero-content { max-width: 900px; z-index: 2; animation: fadeUp 1s ease; }
+        .hero h1 { font-size: 5rem; font-weight: 800; background: linear-gradient(to right, #fff, var(--primary), #ff3a6f); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 1rem; }
+        body.light-theme .hero h1 { background: linear-gradient(to right, #0a0e1c, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; }
+        .hero p { font-size: 1.3rem; color: var(--text-muted); margin-bottom: 2rem; }
+        .hero-btns { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+        .btn-primary, .btn-secondary {
+            padding: 1rem 2.2rem; border-radius: 60px; font-weight: 700; border: none;
+            transition: 0.3s; cursor: pointer; font-size: 1rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary { background: var(--primary); color: #0a0e1c; box-shadow: 0 0 12px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-5px); box-shadow: 0 0 25px var(--primary); }
+        .btn-secondary { background: transparent; border: 2px solid var(--primary); color: var(--text-light); backdrop-filter: blur(4px); }
+        .btn-secondary:hover { background: var(--primary); color: #0a0e1c; transform: translateY(-3px); }
+
+        /* Sections */
+        section { padding: 6rem 6%; }
+        .section-title { font-size: 2.8rem; text-align: center; margin-bottom: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--text-light), var(--primary)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+        /* Search Bar Styles */
+        .search-container {
+            max-width: 500px;
+            margin: -1.5rem auto 3rem auto;
+            position: relative;
+        }
+        .search-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-wrapper i {
+            position: absolute;
+            left: 20px;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: color 0.3s;
+        }
+        .search-input {
+            width: 100%;
+            padding: 1.1rem 1.5rem 1.1rem 3.5rem;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            color: var(--text-light);
+            font-size: 1rem;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-neon);
+        }
+        .search-input:focus + i { color: var(--primary); }
+        .no-results {
+            text-align: center;
+            grid-column: 1 / -1;
+            padding: 3rem;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            display: none;
+        }
+
+        /* Cards Grid */
+        .matches-grid, .players-grid, .news-grid, .teams-grid, .stats-grid, .gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
+        .match-card, .player-card, .news-card, .team-card, .stat-card { background: var(--card-bg); backdrop-filter: blur(12px); border-radius: 28px; border: 1px solid var(--glass-border); transition: var(--transition); overflow: hidden; }
+        .match-card:hover, .player-card:hover, .news-card:hover, .team-card:hover { transform: translateY(-12px) scale(1.01); border-color: var(--primary); box-shadow: var(--shadow-neon); }
+        .match-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        body.light-theme .match-header { border-bottom-color: rgba(0,0,0,0.05); }
+        .team { display: flex; align-items: center; gap: 12px; flex: 1; justify-content: space-between; }
+        .team img { width: 45px; height: 45px; border-radius: 50%; background: #1e1f2c; object-fit: cover; }
+        .vs { font-size: 1.6rem; font-weight: 800; color: var(--primary); margin: 0 10px; }
+        .match-body { padding: 1.5rem; text-align: center; }
+        .score { font-size: 3rem; font-weight: 800; font-family: 'Orbitron', monospace; color: var(--primary); }
+        .timer, .stadium { color: var(--text-muted); margin: 8px 0; }
+        .live-indicator { background: #ff3a6f; display: inline-block; padding: 5px 12px; border-radius: 40px; font-size: 0.8rem; font-weight: bold; margin-top: 12px; animation: pulse 1.3s infinite; }
+
+        /* Player */
+        .player-img { position: relative; height: 280px; overflow: hidden; }
+        .player-img img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+        .player-card:hover .player-img img { transform: scale(1.1); }
+        .player-overlay { position: absolute; inset: 0; background: linear-gradient(to top, #000000cc, transparent); display: flex; align-items: flex-end; padding: 1.2rem; opacity: 0; transition: 0.3s; }
+        .player-card:hover .player-overlay { opacity: 1; }
+        .player-stats { display: flex; gap: 1rem; background: rgba(0,0,0,0.6); border-radius: 30px; padding: 6px 12px; color: white; }
+        .player-info { padding: 1.5rem; text-align: center; }
+        .player-info h3 { text-transform: capitalize; }
+        .club { background: var(--primary); color: #0a0e1c; border-radius: 50px; padding: 4px 12px; font-size: 0.8rem; font-weight: bold; display: inline-block; margin-top: 8px; text-transform: uppercase; }
+
+        .team-card { text-align: center; padding: 1.8rem; }
+        .team-card img { width: 90px; height: 90px; border-radius: 50%; margin-bottom: 1rem; border: 2px solid var(--primary); background: white; object-fit: contain; }
+
+        .news-card img { width: 100%; height: 220px; object-fit: cover; transition: 0.4s; }
+        .news-card:hover img { transform: scale(1.05); }
+        .news-content { padding: 1.5rem; }
+        .btn-read { background: var(--primary); border: none; padding: 8px 18px; border-radius: 30px; font-weight: 600; color: #0a0e1c; text-decoration: none; display: inline-block; margin-top: 12px; transition: 0.2s; cursor: pointer; }
+        .btn-read:hover { transform: translateY(-2px); box-shadow: var(--shadow-neon); }
+        
+        .stat-card { text-align: center; padding: 2rem; }
+        .stat-card i { font-size: 2.8rem; color: var(--primary); margin-bottom: 1rem; }
+        .count-number { font-size: 2.8rem; font-weight: 800; font-family: monospace; color: var(--primary); }
+
+        .gallery-grid img { width: 100%; height: 260px; object-fit: cover; border-radius: 24px; transition: 0.3s; cursor: pointer; border: 1px solid var(--glass-border); }
+        .gallery-grid img:hover { transform: scale(1.02); box-shadow: var(--shadow-neon); }
+
+        /* Ticker */
+        .ticker-bar { background: var(--ticker-bg); border-top: 1px solid var(--primary); border-bottom: 1px solid var(--primary); padding: 0.8rem 0; overflow: hidden; white-space: nowrap; }
+        .ticker-content { display: inline-block; animation: tickerScroll 25s linear infinite; font-weight: 500; color: var(--primary); letter-spacing: 1px; }
+        .ticker-content span { margin: 0 2rem; color: var(--text-light); }
+        @keyframes tickerScroll { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+
+        /* Contact */
+        .contact-form { max-width: 700px; margin: 0 auto; background: var(--card-bg); backdrop-filter: blur(12px); padding: 2.5rem; border-radius: 36px; border: 1px solid var(--glass-border); }
+        .form-group input, .form-group textarea { width: 100%; padding: 1rem; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 60px; color: var(--text-light); margin-bottom: 1rem; transition: 0.2s; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+        .back-to-top { position: fixed; bottom: 2rem; right: 2rem; background: var(--primary); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; opacity: 0; transition: 0.3s; z-index: 99; box-shadow: 0 0 12px cyan; border: none; color: #0a0e1c; font-size: 1.2rem; }
+        .back-to-top.visible { opacity: 1; }
+        .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s; z-index: 2000; }
+        .lightbox.active { opacity: 1; visibility: visible; }
+        .lightbox img { max-width: 85%; max-height: 80vh; border-radius: 28px; border: 3px solid var(--primary); }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .nav-menu { position: fixed; top: 80px; left: -100%; flex-direction: column; background: var(--navbar-scrolled); width: 100%; text-align: center; transition: 0.4s; gap: 0; backdrop-filter: blur(20px); }
+            .nav-menu.active { left: 0; }
+            .nav-menu li { padding: 1.2rem; border-top: 1px solid var(--glass-border); width: 100%; }
+            .theme-toggle-wrapper { justify-content: center; width: 100%; }
+            .menu-btn { display: block; order: 2; }
+            .nav-container-right { gap: 1rem; }
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        body.light-theme .form-group input, body.light-theme .form-group textarea { background: rgba(0,0,0,0.03); color: #0a0e1c; }
+        .form-group textarea { border-radius: 24px; resize: vertical; }
+        .footer { background: var(--footer-bg); backdrop-filter: blur(12px); padding: 3rem 6% 1rem; margin-top: 2rem; border-top: 1px solid var(--glass-border); }
+        .footer-content { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 2rem; }
+        .footer-column ul { list-style: none; }
+        .footer-column ul li a { color: var(--text-muted); text-decoration: none; transition: 0.2s; }
+        .footer-column ul li a:hover { color: var(--primary); }
+        .social-icons a { background: rgba(255,255,255,0.08); width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-right: 12px; transition: 0.2s; color: var(--text-light); text-decoration: none; }
+        .social-icons a:hover { background: var(--primary); color: #000; transform: translateY(-4px); }
+    </style>
+</head>
+<body>
+<div class="preloader"><div class="loader-circle"></div></div>
+
+<!-- Background with dancing football icons (Font Awesome) -->
+<div class="football-bg" id="footballBg"></div>
+
+<nav class="navbar">
+    <a href="#" class="logo">Football<span>Future</span></a>
+    
+    <div class="nav-container-right">
+        <ul class="nav-menu" id="navMenu">
+            <li><a href="#home" class="nav-link">Home</a></li>
+            <li><a href="#matches" class="nav-link">Matches</a></li>
+            <li><a href="#teamsSection" class="nav-link">Teams</a></li>
+            <li><a href="#players" class="nav-link">Players</a></li>
+            <li><a href="#news" class="nav-link">News</a></li>
+            <li><a href="#statsSection" class="nav-link">Stats</a></li>
+            <li><a href="#contact" class="nav-link">Contact</a></li>
+            <!-- Dark Mode Element moved inside menu on the right -->
+            <li class="theme-toggle-wrapper">
+                <i class="fas fa-sun toggle-theme" id="themeToggle"></i>
+            </li>
+        </ul>
+        <!-- Mobile menu icon -->
+        <i class="fas fa-bars menu-btn" id="menuBtn"></i>
+    </div>
+</nav>
+
+<section class="hero" id="home">
+    <div class="hero-content">
+        <h1>THE FUTURE OF FOOTBALL</h1>
+        <p>Live scores, elite stats, transfer news & immersive gallery — your digital football universe.</p>
+        <div class="hero-btns">
+            <a href="#matches" class="btn-primary"><i class="fas fa-play"></i> Live Matches</a>
+            <a href="#players" class="btn-secondary"><i class="fas fa-chart-line"></i> Top Players</a>
+        </div>
+    </div>
+</section>
+
+<div class="ticker-bar">
+    <div class="ticker-content" id="tickerText">⚽ LIVE: Manchester City 3-1 Real Madrid • 71' • Barcelona 2-2 PSG • Liverpool 1-0 AC Milan 🔥</div>
+</div>
+
+<section class="matches" id="matches"><div class="container"><h2 class="section-title">🔥 Live Matches</h2>
+<div class="matches-grid" id="matchesGrid">
+    <div class="match-card"><div class="match-header"><div class="team"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/250px-Manchester_City_FC_badge.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail" alt="MC"><span>Man City</span></div><div class="vs">VS</div><div class="team"><span>Real Madrid</span><img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/960px-Real_Madrid_CF.svg.png?utm_source=en.wikipedia.org&utm_campaign=index&utm_content=thumbnail" alt="RM"></div></div><div class="match-body"><div class="score">3 - 1</div><div class="timer">71'</div><div class="stadium">Etihad Stadium</div><div class="live-indicator">LIVE</div></div></div>
+    <div class="match-card"><div class="match-header"><div class="team"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/250px-FC_Barcelona_%28crest%29.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail" alt="FCB"><span>Barcelona</span></div><div class="vs">VS</div><div class="team"><span>PSG</span><img src="https://upload.wikimedia.org/wikipedia/ru/a/a7/Paris_Saint-Germain_F.C..svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original" alt="PSG"></div></div><div class="match-body"><div class="score">2 - 2</div><div class="timer">58'</div><div class="stadium">Spotify Camp Nou</div><div class="live-indicator">LIVE</div></div></div>
+    <div class="match-card"><div class="match-header"><div class="team"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/250px-Liverpool_FC.svg.png?utm_source=en.wikipedia.org&utm_campaign=parser&utm_content=thumbnail" alt="LIV"><span>Liverpool</span></div><div class="vs">VS</div><div class="team"><span>AC Milan</span><img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Logo_of_AC_Milan.svg?utm_source=ru.wikipedia.org&utm_campaign=index&utm_content=original" alt="ACM"></div></div><div class="match-body"><div class="score">1 - 0</div><div class="timer">34'</div><div class="stadium">Anfield</div><div class="live-indicator">LIVE</div></div></div>
+</div></div></section>
+
+<section id="teamsSection"><div class="container"><h2 class="section-title">🏆 Elite Clubs</h2><div class="teams-grid">
+    <div class="team-card"><img src="https://static0.givemesportimages.com/wordpress/wp-content/uploads/2024/08/real-madrid-logo-resized.png?q=70&fit=crop&w=1200&h=628&dpr=1" alt="Real Madrid"><h3>Real Madrid</h3><p>15 UCL Titles</p></div>
+    <div class="team-card"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/47/FC_Barcelona_%28crest%29.svg/1280px-FC_Barcelona_%28crest%29.svg.png" alt="Barcelona"><h3>Barcelona</h3><p>La Liga Giants</p></div>
+    <div class="team-card"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg/250px-FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg.png" alt="Bayern"><h3>Bayern Munich</h3><p>German Powerhouse</p></div>
+    <div class="team-card"><img src="https://upload.wikimedia.org/wikipedia/en/a/a7/Paris_Saint-Germain_F.C..svg" alt="PSG"><h3>Paris SG</h3><p>French Revolution</p></div>
+</div></div></section>
+
+<section class="players" id="players"><div class="container">
+    <h2 class="section-title">⭐ World Class Stars</h2>
+    
+    <!-- Player Search Bar -->
+    <div class="search-container">
+        <div class="search-wrapper">
+            <input type="text" id="playerSearch" class="search-input" placeholder="Search stars by name...">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <div class="players-grid" id="playersGrid">
+        <div class="player-card"><div class="player-img"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTBlZO09dvzekd-ZDggYq2iHwfRXbgqtQVY6w&s" alt="ronaldo"><div class="player-overlay"><div class="player-stats"><span>⚽ 32 G</span><span>🅰️ 17 A</span></div></div></div><div class="player-info"><h3>cristiano ronaldo</h3><p>Forward • Magic</p><span class="club">al nasr</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBtOhTGx5DSdNlPvmOtFPlFnuR293mvw5gtg&s" alt="Haaland"><div class="player-overlay"><div class="player-stats"><span>⚽ 41 G</span><span>🅰️ 8 A</span></div></div></div><div class="player-info"><h3>Erling Haaland</h3><p>Striker • Viking</p><span class="club">Man City</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSP2RqUKAAPuDnBpSDaOgRrZL4hfA0EZrFFXQ&s" alt="Mbappé"><div class="player-overlay"><div class="player-stats"><span>⚽ 28 G</span><span>🅰️ 12 A</span></div></div></div><div class="player-info"><h3>Kylian Mbappé</h3><p>Forward • Speed</p><span class="club">Real Madrid</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT7zf_d1zJLJTz-MmBEfnxWRGMteGHi7qhyHg&s" alt="Vinicius"><div class="player-overlay"><div class="player-stats"><span>⚽ 19 G</span><span>🅰️ 14 A</span></div></div></div><div class="player-info"><h3>Vinícius Jr</h3><p>Winger • Dribbler</p><span class="club">Real Madrid</span></div></div>
+
+        <div class="player-card"><div class="player-img"><img src="https://media.gettyimages.com/id/1668971299/photo/belem-brazil-neymar-jr-of-brazil-celebrates-after-scoring-the-fifth-goal-of-his-team-during-a.jpg?s=612x612&w=gi&k=20&c=2ZmNt6MqOqd0RsZO8I8vKL13d2raqQT9PxG-QTP9Uds=" alt="neymar"><div class="player-overlay"><div class="player-stats"><span>⚽ 8 G</span><span>🅰️ 4 A</span></div></div></div><div class="player-info"><h3>neymar Jr</h3><p>Winger • Dribbler</p><span class="club">santos</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://pbs.twimg.com/media/HFkHixUW8AAgehu.jpg" alt="thibaut curtois"><div class="player-overlay"><div class="player-stats"><span>⚽ 19 s</span><span>🅰️ 14 A</span></div></div></div><div class="player-info"><h3>thibaut curtois</h3><p>Winger • goalkeper</p><span class="club">Real Madrid</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://m.media-amazon.com/images/M/MV5BNThkN2E1Y2MtZWUwMS00MzQ2LTg0ODQtMjNiZGY0YTM1ZmNjXkEyXkFqcGc@._V1_.jpg" alt="i.casillas"><div class="player-overlay"><div class="player-stats"><span>⚽ 20 s</span><span>🅰️ 14 A</span></div></div></div><div class="player-info"><h3>i.casillas</h3><p>Winger • goalkeper</p><span class="club">Real Madrid</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://b.fssta.com/uploads/application/soccer/headshots/884.png" alt="sergio ramos"><div class="player-overlay"><div class="player-stats"><span>⚽ 30 G</span><span>🅰️ 14 A</span></div></div></div><div class="player-info"><h3>sergio ramos</h3><p>Winger • Dribbler</p><span class="club">Real Madrid</span></div></div>
+        <div class="player-card"><div class="player-img"><img src="https://res.cloudinary.com/chelsea-production/image/upload/c_fit,h_630,w_1200/v1/editorial/news/2024/05/16/Thiago_Silva_Chelsea_vs_Tottenham" alt="thiago silva"><div class="player-overlay"><div class="player-stats"><span>⚽ 19 G</span><span>🅰️ 14 A</span></div></div></div><div class="player-info"><h3>thiago silva</h3><p>Winger • Dribbler</p><span class="club">chelsi</span></div></div>
+        
+        
+        <!-- Fallback No Results -->
+        <div class="no-results" id="noResultsElement"><i class="fas fa-user-slash" style="display:block; font-size:2rem; margin-bottom:10px; color:var(--secondary)"></i> No match found for that player.</div>
+    </div>
+</div></section>
+
+<section class="news" id="news"><div class="container"><h2 class="section-title">📰 Transfer & Latest News</h2><div class="news-grid">
+    <div class="news-card"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRHNMRj_6U41QVlAbdwOnRYWh8zbZupe-NlPg&s" alt="News"><div class="news-content"><h3>MBAPPE</h3><p>Record-breaking contract until 2029, presentation at Bernabéu next week.</p><a href="#" class="btn-read">Read More →</a></div></div>
+    <div class="news-card"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTIxjikXP_Sfa16rLaBjK2hpGbkk_DjgQ-oA&s" alt="News"><div class="news-content"><h3>HABI ALONSO</h3><p>Xabi Alonso's masterpiece, the 3-4-3 revolution continues in Bundesliga.</p><a href="#" class="btn-read">Read More →</a></div></div>
+    <div class="news-card"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:GcS835muQJmtWpOHRBIyTyB_N3woxIQRPzp44Q&s" alt="News"><div class="news-content"><h3>De Bruyne   </h3><p>Belgian midfielder spotted in individual drills, huge boost for City.</p><a href="#" class="btn-read">Read More →</a></div></div>
+</div></div></section>
+
+<section id="statsSection"><div class="container"><h2 class="section-title">📊 All-Time Leaders</h2><div class="stats-grid">
+    <div class="stat-card"><i class="fas fa-futbol"></i><h3>Total Goals (UCL)</h3><div class="count-number" id="goalsCount">2772</div></div>
+    <div class="stat-card"><i class="fas fa-hands-helping"></i><h3>All-Time Assists</h3><div class="count-number" id="assistsCount">980</div></div>
+    <div class="stat-card"><i class="fas fa-trophy"></i><h3>Ballon d'Or Wins</h3><div class="count-number" id="trophiesCount">85</div></div>
+    <div class="stat-card"><i class="fas fa-users"></i><h3>Worldwide Fans (M)</h3><div class="count-number" id="fansCount">3500</div></div>
+</div></div></section>
+
+<section class="gallery" id="gallery"><div class="container"><h2 class="section-title">📸 Iconic Moments</h2><div class="gallery-grid" id="galleryGrid">
+    <img src="https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?w=400&h=300&fit=crop" alt="Stadium">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrd7PtSxb71C4KC3NpS3BdieE1NPixDfHUSQ&s" alt="Football Kick">
+    <img src="https://s.yimg.com/ny/api/res/1.2/gZfvP3DbTmLputh79fS8lA--/YXBwaWQ9aGlnaGxhbmRlcjt3PTI0MDA7aD0xMzUwO2NmPXdlYnA-/https://media.zenfs.com/en/anfield_watch_articles_625/7873a11c81ec3f896a6ef6be752a932e" alt="Goal Celebration">
+    <img src="https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400&h=300&fit=crop" alt="Fans">
+    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTd1Zs0wClNvTPXk0xNN2JfbIcCjpd67xRyw&s" alt="Match">
+    <img src="https://colombiaone.com/wp-content/uploads/2024/06/real-madrid-champions-league-credit-daniel0685-cc2.jpg" alt="Trophy">
+</div></div></section>
+
+<section class="contact" id="contact"><div class="container"><h2 class="section-title">✉️ Get in Touch</h2><form class="contact-form" id="contactForm"><div class="form-group"><input type="text" placeholder="Full Name" required></div><div class="form-group"><input type="email" placeholder="Email Address" required></div><div class="form-group"><textarea placeholder="Your message for Football Future" rows="4"></textarea></div><button type="submit" class="btn-primary"><i class="fas fa-paper-plane"></i> Send Message</button></form></div></section>
+
+<footer class="footer"><div class="footer-content"><div class="footer-logo"><a href="#" class="logo">Football<span>Future</span></a><p style="margin-top: 12px;">© 2026 • Beyond the game</p></div><div class="footer-column"><h4>Quick Links</h4><ul><li><a href="#home">Home</a></li><li><a href="#matches">Fixtures</a></li><li><a href="#players">Stars</a></li></ul></div><div class="footer-column"><h4>Follow Us</h4><div class="social-icons"><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-youtube"></i></a><a href="#"><i class="fab fa-tiktok"></i></a></div></div></div><div class="footer-bottom"><p>⚡ The heartbeat of modern football — real-time passion.</p></div></footer>
+<button class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></button>
+<div class="lightbox" id="lightbox"><img id="lightboxImg" src=""></div>
+
+<script>
+    // Create dancing football icons background
+    (function createDancingBalls() {
+        const bgContainer = document.getElementById('footballBg');
+        if (!bgContainer) return;
+        
+        const BALL_COUNT = 48;
+        const iconClass = 'fa-futbol';
+        
+        for (let i = 0; i < BALL_COUNT; i++) {
+            const ball = document.createElement('div');
+            ball.className = 'dancing-ball';
+            const size = 18 + Math.random() * 24;
+            ball.style.fontSize = size + 'px';
+            ball.style.left = Math.random() * 100 + '%';
+            ball.style.top = Math.random() * 100 + '%';
+            ball.style.opacity = 0.2 + Math.random() * 0.35;
+            const duration = 12 + Math.random() * 18;
+            const delay = Math.random() * 10;
+            ball.style.animationDuration = duration + 's';
+            ball.style.animationDelay = delay + 's';
+            ball.style.animationName = 'floatAround';
+            
+            const icon = document.createElement('i');
+            icon.className = `fas ${iconClass}`;
+            icon.style.color = 'var(--primary)';
+            icon.style.filter = `drop-shadow(0 0 ${3 + Math.random() * 4}px var(--primary-glow))`;
+            ball.appendChild(icon);
+            bgContainer.appendChild(ball);
+        }
+    })();
+
+    // ========== MAIN UI SCRIPT ==========
+    window.addEventListener('load', () => { 
+        document.querySelector('.preloader')?.classList.add('completed'); 
+    });
+
+    // Mobile Menu Toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const navMenu = document.getElementById('navMenu');
+    if(menuBtn && navMenu) {
+        menuBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            menuBtn.classList.toggle('fa-times');
+        });
+        document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            menuBtn.classList.remove('fa-times');
+        }));
+    }
+
+    // Theme Toggle Functionality
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if(themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            themeToggleBtn.classList.toggle('fa-sun');
+            themeToggleBtn.classList.toggle('fa-moon');
+        });
+    }
+
+    // Scroll Effects
+    const navbar = document.querySelector('.navbar');
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        if(window.scrollY > 50) {
+            navbar?.classList.add('scrolled');
+            backToTop?.classList.add('visible');
+        } else {
+            navbar?.classList.remove('scrolled');
+            backToTop?.classList.remove('visible');
+        }
+    });
+    backToTop?.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
+
+    // Lightbox Gallery Setup
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightboxImg');
+    document.querySelectorAll('.gallery-grid img').forEach(img => {
+        img.addEventListener('click', () => {
+            if(lightbox && lightboxImg) {
+                lightboxImg.src = img.src;
+                lightbox.classList.add('active');
+            }
+        });
+    });
+    lightbox?.addEventListener('click', () => lightbox.classList.remove('active'));
+
+    // ========== DYNAMIC PLAYER SEARCH LOGIC ==========
+    const searchInput = document.getElementById('playerSearch');
+    const playerCards = document.querySelectorAll('.players-grid .player-card');
+    const noResults = document.getElementById('noResultsElement');
+
+    searchInput?.addEventListener('input', (e) => {
+        const value = e.target.value.toLowerCase().trim();
+        let hasMatches = false;
+
+        playerCards.forEach(card => {
+            const playerName = card.querySelector('.player-info h3').textContent.toLowerCase();
+            if (playerName.includes(value)) {
+                card.style.display = 'block';
+                hasMatches = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        if (hasMatches) {
+            noResults.style.display = 'none';
+        } else {
+            noResults.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
